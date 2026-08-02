@@ -402,6 +402,14 @@ p {
   grid-template-columns: repeat(3, 1fr);
   gap: 26px;
 }
+
+.empty-msg {
+  grid-column: 1/-1;
+  text-align: center;
+  color: var(--ink-soft);
+  padding: 40px 0;
+  font-size: 0.95rem;
+}
 .product-card {
   background: var(--white);
   border: 1px solid var(--blush);
