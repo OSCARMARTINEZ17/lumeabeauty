@@ -8,6 +8,13 @@ const SHEET_CSV_URL =
 
 let PRODUCTS = { capilares: [], perfumes: [], mascarillas: [], ropa: [] };
 
+const SUBCATEGORY_LABELS = {
+  shampoo: "Shampoo",
+  acondicionador: "Acondicionador",
+  mascarilla: "Mascarillas",
+  termoprotector: "Termoprotector",
+};
+
 /* parser simple de CSV que respeta comas dentro de comillas */
 function parseCSV(text) {
   const rows = [];
@@ -71,6 +78,7 @@ async function loadProducts() {
         desc: obj.desc,
         price: parseFloat(obj.price) || 0,
         img: obj.img || null,
+        subcategory: obj.subcategory || null,
         sizes: obj.sizes
           ? obj.sizes
               .split(",")
@@ -90,10 +98,11 @@ async function loadProducts() {
 /* promesa global que otros scripts (cart.js) pueden esperar */
 window.PRODUCTS_READY = loadProducts();
 
-function renderCategory(category) {
+function renderCategory(category, filter = "all") {
   const grid = document.getElementById("productGrid");
   if (!grid) return;
-  const items = PRODUCTS[category] || [];
+  let items = PRODUCTS[category] || [];
+  if (filter !== "all") items = items.filter((p) => p.subcategory === filter);
 
   if (items.length === 0) {
     grid.innerHTML =
@@ -135,7 +144,37 @@ function renderCategory(category) {
     .join("");
 }
 
+function renderSubcategoryFilters(category) {
+  const wrap = document.getElementById("subcatFilters");
+  if (!wrap) return;
+  const items = PRODUCTS[category] || [];
+  const present = [...new Set(items.map((p) => p.subcategory).filter(Boolean))];
+  if (present.length === 0) {
+    wrap.style.display = "none";
+    return;
+  }
+
+  wrap.innerHTML = `
+    <button class="filter-btn active" data-filter="all">Todos</button>
+    ${present.map((s) => `<button class="filter-btn" data-filter="${s}">${SUBCATEGORY_LABELS[s] || s}</button>`).join("")}
+  `;
+
+  wrap.querySelectorAll(".filter-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      wrap
+        .querySelectorAll(".filter-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderCategory(category, btn.dataset.filter);
+    });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   if (window.PRODUCTS_READY) await window.PRODUCTS_READY;
-  if (document.body.dataset.category) renderCategory(document.body.dataset.category);
+  const category = document.body.dataset.category;
+  if (category) {
+    renderSubcategoryFilters(category);
+    renderCategory(category);
+  }
 });

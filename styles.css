@@ -397,6 +397,36 @@ p {
 .product-section {
   padding: 36px 0 90px;
 }
+
+.subcat-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+.filter-btn {
+  border: 1px solid var(--rose);
+  background: var(--white);
+  color: var(--ink-soft);
+  padding: 9px 20px;
+  border-radius: 999px;
+  font-family: var(--body);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.filter-btn:hover {
+  background: var(--blush-soft);
+}
+.filter-btn.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--cream);
+}
+
 .product-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -437,7 +467,8 @@ p {
 .product-media img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 18px;
 }
 
 .product-media .initial {
