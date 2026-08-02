@@ -6,7 +6,7 @@
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyY-cfIwnpbLeW6HPkx46N6HbI3dp627oD0zxFfIxFfJyHvOsz3_65mQ2H2uYSCEc-3V75yJcrO562/pub?output=csv";
 
-let PRODUCTS = { capilares: [], perfumes: [], ropa: [] };
+let PRODUCTS = { capilares: [], perfumes: [], mascarillas: [], ropa: [] };
 
 /* parser simple de CSV que respeta comas dentro de comillas */
 function parseCSV(text) {
@@ -58,7 +58,7 @@ async function loadProducts() {
     const headers = rows[0].map((h) => h.trim().toLowerCase());
     const data = rows.slice(1);
 
-    const grouped = { capilares: [], perfumes: [], ropa: [] };
+    const grouped = { capilares: [], perfumes: [], mascarillas: [], ropa: [] };
     data.forEach((cols) => {
       const obj = {};
       headers.forEach((h, i) => (obj[h] = (cols[i] || "").trim()));
@@ -137,5 +137,5 @@ function renderCategory(category) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (window.PRODUCTS_READY) await window.PRODUCTS_READY;
-  injectCartUI();
+  if (document.body.dataset.category) renderCategory(document.body.dataset.category);
 });
