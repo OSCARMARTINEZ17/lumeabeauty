@@ -489,6 +489,17 @@ p {
   color: #fff;
 }
 
+.size-select {
+  border: 1px solid var(--blush);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: var(--body);
+  font-size: 0.82rem;
+  color: var(--ink);
+  background: var(--white);
+  margin-bottom: 12px;
+}
+
 /* ---------- cart drawer ---------- */
 .cart-overlay {
   position: fixed;

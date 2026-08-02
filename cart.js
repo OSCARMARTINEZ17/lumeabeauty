@@ -23,25 +23,26 @@ function findProduct(id) {
   }
   return null;
 }
-function addToCart(id) {
+function addToCart(id, size = null) {
   const cart = getCart();
-  const line = cart.find((l) => l.id === id);
+  const lineId = size ? `${id}__${size}` : id;
+  const line = cart.find((l) => l.lineId === lineId);
   if (line) line.qty += 1;
-  else cart.push({ id, qty: 1 });
+  else cart.push({ id, size, lineId, qty: 1 });
   saveCart(cart);
   flashAdded(id);
   openCart();
 }
-function changeQty(id, delta) {
+function changeQty(lineId, delta) {
   const cart = getCart();
-  const line = cart.find((l) => l.id === id);
+  const line = cart.find((l) => (l.lineId || l.id) === lineId);
   if (!line) return;
   line.qty += delta;
-  if (line.qty <= 0) return removeFromCart(id);
+  if (line.qty <= 0) return removeFromCart(lineId);
   saveCart(cart);
 }
-function removeFromCart(id) {
-  saveCart(getCart().filter((l) => l.id !== id));
+function removeFromCart(lineId) {
+  saveCart(getCart().filter((l) => (l.lineId || l.id) !== lineId));
 }
 function cartTotal(cart) {
   return cart.reduce((sum, l) => {
@@ -92,17 +93,18 @@ function renderCart() {
       .map((l) => {
         const p = findProduct(l.id);
         if (!p) return "";
+        const lineId = l.lineId || l.id;
         return `
         <div class="cart-line">
           <div class="line-media"><span>${p.name.charAt(0)}</span></div>
           <div class="line-info">
-            <h5>${p.name}</h5>
+            <h5>${p.name}${l.size ? ` <span class="line-size">Talla ${l.size}</span>` : ""}</h5>
             <div class="line-qty">
-              <button class="qty-btn" aria-label="Restar" onclick="changeQty('${p.id}',-1)">−</button>
+              <button class="qty-btn" aria-label="Restar" onclick="changeQty('${lineId}',-1)">−</button>
               <span>${l.qty}</span>
-              <button class="qty-btn" aria-label="Sumar" onclick="changeQty('${p.id}',1)">+</button>
+              <button class="qty-btn" aria-label="Sumar" onclick="changeQty('${lineId}',1)">+</button>
             </div>
-            <button class="line-remove" onclick="removeFromCart('${p.id}')">Quitar</button>
+            <button class="line-remove" onclick="removeFromCart('${lineId}')">Quitar</button>
           </div>
           <div class="line-price">$${(p.price * l.qty).toFixed(2)}</div>
         </div>`;
@@ -133,7 +135,8 @@ function sendCartToWhatsApp() {
   cart.forEach((l) => {
     const p = findProduct(l.id);
     if (!p) return;
-    msg += `• ${p.name} x${l.qty} — $${(p.price * l.qty).toFixed(2)}\n`;
+    const sizeText = l.size ? ` (Talla ${l.size})` : "";
+    msg += `• ${p.name}${sizeText} x${l.qty} — $${(p.price * l.qty).toFixed(2)}\n`;
   });
   msg += `\nTotal: $${cartTotal(cart).toFixed(2)}\n\n`;
   msg +=
@@ -186,14 +189,4 @@ function injectCartUI() {
   fab.href = `https://wa.me/${WHATSAPP_NUMBER}`;
   fab.target = "_blank";
   fab.setAttribute("aria-label", "Escríbenos por WhatsApp");
-  fab.innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.08L2 22l5.06-1.33A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Z" stroke="white" stroke-width="1.4"/><path d="M8.5 8.7c.2-.6.6-.6 1-.6h.5c.2 0 .5 0 .7.5.2.6.7 1.9.8 2 .1.2.1.4 0 .6-.1.2-.2.3-.4.5-.2.2-.4.4-.2.7.2.4 1 1.5 2.1 2.4 1.4 1.2 2 1.3 2.3 1.2.3-.1.5-.3.7-.6.2-.3.5-.3.8-.2.3.1 1.8.9 2.1 1 .3.1.5.2.6.3.1.2.1 1-.3 1.4-.4.5-1.5 1-2.5.9-1-.1-3.1-.9-4.9-2.6-2.1-2-3.1-4-3.3-4.6-.2-.6-.9-1.9 0-3.9Z" fill="white"/></svg>`;
-
-  document.body
-    .querySelectorAll(".icon-btn[data-cart-toggle]")
-    .forEach((btn) => {
-      btn.onclick = openCart;
-    });
-
-  renderCart();
-}
-document.addEventListener("DOMContentLoaded", injectCartUI);
+  fab.innerHTML =
