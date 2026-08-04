@@ -755,9 +755,6 @@ p {
 
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
-  .main-nav {
-    display: none;
-  }
   .cat-grid,
   .product-grid {
     grid-template-columns: repeat(2, 1fr);

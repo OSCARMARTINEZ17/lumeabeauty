@@ -98,7 +98,7 @@ function renderCart() {
         <div class="cart-line">
           <div class="line-media"><span>${p.name.charAt(0)}</span></div>
           <div class="line-info">
-            <h5>${p.name}${l.size ? ` <span class="line-size">Talla ${l.size}</span>` : ""}</h5>
+            <h5>${p.name}${l.size ? ` <span class="line-size">${l.size}</span>` : ""}</h5>
             <div class="line-qty">
               <button class="qty-btn" aria-label="Restar" onclick="changeQty('${lineId}',-1)">−</button>
               <span>${l.qty}</span>
@@ -135,7 +135,7 @@ function sendCartToWhatsApp() {
   cart.forEach((l) => {
     const p = findProduct(l.id);
     if (!p) return;
-    const sizeText = l.size ? ` (Talla ${l.size})` : "";
+    const sizeText = l.size ? ` (${l.size})` : "";
     msg += `• ${p.name}${sizeText} x${l.qty} — $${(p.price * l.qty).toFixed(2)}\n`;
   });
   msg += `\nTotal: $${cartTotal(cart).toFixed(2)}\n\n`;
@@ -189,4 +189,17 @@ function injectCartUI() {
   fab.href = `https://wa.me/${WHATSAPP_NUMBER}`;
   fab.target = "_blank";
   fab.setAttribute("aria-label", "Escríbenos por WhatsApp");
-  fab.innerHTML =
+  fab.innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.35 5.08L2 22l5.06-1.33A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Z" stroke="white" stroke-width="1.4"/><path d="M8.5 8.7c.2-.6.6-.6 1-.6h.5c.2 0 .5 0 .7.5.2.6.7 1.9.8 2 .1.2.1.4 0 .6-.1.2-.2.3-.4.5-.2.2-.4.4-.2.7.2.4 1 1.5 2.1 2.4 1.4 1.2 2 1.3 2.3 1.2.3-.1.5-.3.7-.6.2-.3.5-.3.8-.2.3.1 1.8.9 2.1 1 .3.1.5.2.6.3.1.2.1 1-.3 1.4-.4.5-1.5 1-2.5.9-1-.1-3.1-.9-4.9-2.6-2.1-2-3.1-4-3.3-4.6-.2-.6-.9-1.9 0-3.9Z" fill="white"/></svg>`;
+
+  document.body
+    .querySelectorAll(".icon-btn[data-cart-toggle]")
+    .forEach((btn) => {
+      btn.onclick = openCart;
+    });
+
+  renderCart();
+}
+document.addEventListener("DOMContentLoaded", async () => {
+  if (window.PRODUCTS_READY) await window.PRODUCTS_READY;
+  injectCartUI();
+});
