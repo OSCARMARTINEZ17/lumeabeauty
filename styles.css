@@ -477,6 +477,37 @@ p {
   color: var(--mauve-dark);
   opacity: 0.55;
 }
+
+.stock-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--body);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+.product-card.out-of-stock .product-media {
+  opacity: 0.55;
+}
+.product-card.out-of-stock .product-body {
+  opacity: 0.6;
+}
+.add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--ink-soft);
+  color: var(--ink-soft);
+}
+.add-btn:disabled:hover {
+  background: transparent;
+  color: var(--ink-soft);
+}
+
 .product-body {
   padding: 20px 22px 22px;
   display: flex;
@@ -762,17 +793,44 @@ p {
 .fab-wa {
   position: fixed;
   bottom: 26px;
-  left: 26px;
+  right: 26px;
   z-index: 50;
-  width: 56px;
-  height: 56px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  background: #25d366;
-  color: #fff;
+  background: var(--white);
+  border: 1px solid var(--blush);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 24px -6px rgba(37, 211, 102, 0.55);
+  box-shadow: 0 10px 24px -6px rgba(37, 211, 102, 0.4);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.fab-wa:hover {
+  transform: scale(1.08);
+  box-shadow: 0 14px 30px -6px rgba(37, 211, 102, 0.65);
+}
+.fab-wa::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #25d366;
+  opacity: 0.5;
+  animation: fab-pulse 2.2s ease-out infinite;
+  z-index: -1;
+}
+@keyframes fab-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
 }
 
 /* ---------- responsive ---------- */

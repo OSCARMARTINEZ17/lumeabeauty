@@ -89,6 +89,7 @@ async function loadProducts() {
         price: parseFloat(obj.price) || 0,
         img: obj.img || null,
         subcategory: obj.subcategory || null,
+        inStock: !(obj.stock && obj.stock.toLowerCase() === "no"),
         sizes: obj.sizes
           ? obj.sizes
               .split(",")
@@ -128,13 +129,14 @@ function renderCategory(category, filter = "all") {
       const safeId = escapeHtml(p.id);
 
       return `
-    <article class="product-card">
+    <article class="product-card${p.inStock ? "" : " out-of-stock"}">
       <div class="product-media">
         ${
           p.img
             ? `<img src="${safeImg}" alt="${safeName}" loading="lazy">`
             : `<span class="initial">${safeName.charAt(0)}</span>`
         }
+        ${!p.inStock ? `<span class="stock-badge">Agotado</span>` : ""}
       </div>
       <div class="product-body">
         <h3>${safeName}</h3>
@@ -142,7 +144,7 @@ function renderCategory(category, filter = "all") {
         ${
           p.sizes
             ? `
-          <select class="size-select" id="size-${safeId}">
+          <select class="size-select" id="size-${safeId}" ${!p.inStock ? "disabled" : ""}>
             ${p.sizes.map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("")}
           </select>
         `
@@ -150,7 +152,9 @@ function renderCategory(category, filter = "all") {
         }
         <div class="product-foot">
           <span class="price">$${p.price.toFixed(2)}</span>
-          <button class="add-btn" data-id="${safeId}" onclick="addToCart('${safeId}', ${p.sizes ? `document.getElementById('size-${safeId}').value` : "null"})">Agregar</button>
+          <button class="add-btn" data-id="${safeId}" ${!p.inStock ? "disabled" : ""} onclick="addToCart('${safeId}', ${p.sizes ? `document.getElementById('size-${safeId}').value` : "null"})">
+            ${p.inStock ? "Agregar" : "Agotado"}
+          </button>
         </div>
       </div>
     </article>
