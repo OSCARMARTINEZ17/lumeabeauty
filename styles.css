@@ -642,6 +642,20 @@ p {
   font-size: 1rem;
   font-weight: 600;
 }
+
+.line-size {
+  font-family: var(--body);
+  font-size: 0.72rem;
+  color: var(--mauve-dark);
+  font-weight: 400;
+  background: var(--blush-soft);
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-left: 6px;
+  vertical-align: middle;
+  display: inline-block;
+}
+
 .line-qty {
   display: flex;
   align-items: center;
