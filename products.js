@@ -15,6 +15,16 @@ const SUBCATEGORY_LABELS = {
   termoprotector: "Termoprotector",
 };
 
+function escapeHtml(text) {
+  if (text == null) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 /* parser simple de CSV que respeta comas dentro de comillas */
 function parseCSV(text) {
   const rows = [];
@@ -111,36 +121,41 @@ function renderCategory(category, filter = "all") {
   }
 
   grid.innerHTML = items
-    .map(
-      (p) => `
+    .map((p) => {
+      const safeName = escapeHtml(p.name);
+      const safeDesc = escapeHtml(p.desc);
+      const safeImg = escapeHtml(p.img);
+      const safeId = escapeHtml(p.id);
+
+      return `
     <article class="product-card">
       <div class="product-media">
         ${
           p.img
-            ? `<img src="${p.img}" alt="${p.name}" loading="lazy">`
-            : `<span class="initial">${p.name.charAt(0)}</span>`
+            ? `<img src="${safeImg}" alt="${safeName}" loading="lazy">`
+            : `<span class="initial">${safeName.charAt(0)}</span>`
         }
       </div>
       <div class="product-body">
-        <h3>${p.name}</h3>
-        <p class="desc">${p.desc}</p>
+        <h3>${safeName}</h3>
+        <p class="desc">${safeDesc}</p>
         ${
           p.sizes
             ? `
-          <select class="size-select" id="size-${p.id}">
-            ${p.sizes.map((s) => `<option value="${s}">${s}</option>`).join("")}
+          <select class="size-select" id="size-${safeId}">
+            ${p.sizes.map((s) => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join("")}
           </select>
         `
             : ""
         }
         <div class="product-foot">
           <span class="price">$${p.price.toFixed(2)}</span>
-          <button class="add-btn" data-id="${p.id}" onclick="addToCart('${p.id}', ${p.sizes ? `document.getElementById('size-${p.id}').value` : "null"})">Agregar</button>
+          <button class="add-btn" data-id="${safeId}" onclick="addToCart('${safeId}', ${p.sizes ? `document.getElementById('size-${safeId}').value` : "null"})">Agregar</button>
         </div>
       </div>
     </article>
-  `,
-    )
+  `;
+    })
     .join("");
 }
 

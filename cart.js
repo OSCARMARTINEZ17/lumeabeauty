@@ -5,6 +5,16 @@
 const WHATSAPP_NUMBER = "16465381517";
 const CART_KEY = "lumea_cart";
 
+function escapeHtml(text) {
+  if (text == null) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function getCart() {
   try {
     return JSON.parse(localStorage.getItem(CART_KEY)) || [];
@@ -94,11 +104,13 @@ function renderCart() {
         const p = findProduct(l.id);
         if (!p) return "";
         const lineId = l.lineId || l.id;
+        const safeName = escapeHtml(p.name);
+        const safeSize = escapeHtml(l.size);
         return `
         <div class="cart-line">
-          <div class="line-media"><span>${p.name.charAt(0)}</span></div>
+          <div class="line-media"><span>${safeName.charAt(0)}</span></div>
           <div class="line-info">
-            <h5>${p.name}${l.size ? ` <span class="line-size">${l.size}</span>` : ""}</h5>
+            <h5>${safeName}${l.size ? ` <span class="line-size">${safeSize}</span>` : ""}</h5>
             <div class="line-qty">
               <button class="qty-btn" aria-label="Restar" onclick="changeQty('${lineId}',-1)">−</button>
               <span>${l.qty}</span>
