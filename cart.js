@@ -108,7 +108,9 @@ function renderCart() {
         const safeSize = escapeHtml(l.size);
         return `
         <div class="cart-line">
-          <div class="line-media"><span>${safeName.charAt(0)}</span></div>
+          <div class="line-media">
+          ${p.img ? `<img src="${escapeHtml(p.img)}" alt="${safeName}">` : `<span>${safeName.charAt(0)}</span>`}
+        </div>
           <div class="line-info">
             <h5>${safeName}${l.size ? ` <span class="line-size">${safeSize}</span>` : ""}</h5>
             <div class="line-qty">
