@@ -789,6 +789,24 @@ p {
   text-align: center;
 }
 
+.cart-clear-btn {
+  display: none;
+  width: 100%;
+  text-align: center;
+  background: none;
+  border: none;
+  color: var(--ink-soft);
+  font-family: var(--body);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 10px 0 0;
+}
+.cart-clear-btn:hover {
+  color: var(--mauve-dark);
+}
+
 /* ---------- footer ---------- */
 .site-footer {
   background: var(--blush-soft);

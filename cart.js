@@ -54,6 +54,11 @@ function changeQty(lineId, delta) {
 function removeFromCart(lineId) {
   saveCart(getCart().filter((l) => (l.lineId || l.id) !== lineId));
 }
+function clearCart() {
+  if (getCart().length === 0) return;
+  if (!confirm("¿Vaciar todo el carrito?")) return;
+  saveCart([]);
+}
 function cartTotal(cart) {
   return cart.reduce((sum, l) => {
     const p = findProduct(l.id);
@@ -82,6 +87,7 @@ function renderCart() {
   const totalEl = document.getElementById("cartTotal");
   const countEls = document.querySelectorAll(".cart-count");
   const sendBtn = document.getElementById("cartSendBtn");
+  const clearBtn = document.getElementById("cartClearBtn");
 
   countEls.forEach((el) => {
     const n = cartCount(cart);
@@ -98,6 +104,7 @@ function renderCart() {
         <p>Tu carrito está vacío.<br>Agrega tus productos favoritos.</p>
       </div>`;
     if (sendBtn) sendBtn.disabled = true;
+    if (clearBtn) clearBtn.style.display = "none";
   } else {
     itemsEl.innerHTML = cart
       .map((l) => {
@@ -125,6 +132,7 @@ function renderCart() {
       })
       .join("");
     if (sendBtn) sendBtn.disabled = false;
+    if (clearBtn) clearBtn.style.display = "inline-flex";
   }
 
   if (totalEl) totalEl.textContent = `$${cartTotal(cart).toFixed(2)}`;
@@ -160,6 +168,16 @@ function sendCartToWhatsApp() {
     `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`,
     "_blank",
   );
+
+  setTimeout(() => {
+    if (
+      confirm(
+        "¿Ya enviaste tu pedido por WhatsApp? Si es así, podemos vaciar tu carrito.",
+      )
+    ) {
+      saveCart([]);
+    }
+  }, 800);
 }
 
 /* ---------- inject drawer + floating buttons on load ---------- */
@@ -192,6 +210,7 @@ function injectCartUI() {
     <div class="cart-foot">
       <div class="cart-total-row"><span>Total</span><span id="cartTotal">$0.00</span></div>
       <button class="btn btn-wa btn-block" id="cartSendBtn" onclick="sendCartToWhatsApp()">Enviar pedido por WhatsApp</button>
+      <button class="cart-clear-btn" id="cartClearBtn" onclick="clearCart()">Vaciar carrito</button>
       <p class="cart-note">Confirmamos disponibilidad y forma de pago (efectivo, Zelle o PayPal) por WhatsApp.</p>
     </div>`;
 
