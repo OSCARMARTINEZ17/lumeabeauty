@@ -169,15 +169,36 @@ function sendCartToWhatsApp() {
     "_blank",
   );
 
-  setTimeout(() => {
-    if (
-      confirm(
-        "¿Ya enviaste tu pedido por WhatsApp? Si es así, podemos vaciar tu carrito.",
-      )
-    ) {
-      saveCart([]);
-    }
-  }, 800);
+  awaitingConfirmation = true;
+}
+
+/* muestra el aviso al volver a la pestaña, si se acaba de enviar un pedido */
+let awaitingConfirmation = false;
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && awaitingConfirmation) {
+    awaitingConfirmation = false;
+    if (getCart().length > 0) showSentConfirm();
+  }
+});
+
+function showSentConfirm() {
+  const foot = document.querySelector(".cart-foot");
+  if (!foot) return;
+  const banner = document.createElement("div");
+  banner.className = "sent-confirm";
+  banner.innerHTML = `
+    <p>¿Ya enviaste tu pedido por WhatsApp?</p>
+    <div class="sent-confirm-actions">
+      <button class="btn btn-primary" id="sentYes">Sí, vaciar carrito</button>
+      <button class="btn btn-outline" id="sentNo">No todavía</button>
+    </div>`;
+  foot.prepend(banner);
+  document.getElementById("sentYes").onclick = () => {
+    saveCart([]);
+    banner.remove();
+  };
+  document.getElementById("sentNo").onclick = () => banner.remove();
+  openCart();
 }
 
 /* ---------- inject drawer + floating buttons on load ---------- */
