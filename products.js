@@ -7,6 +7,8 @@ const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vTyY-cfIwnpbLeW6HPkx46N6HbI3dp627oD0zxFfIxFfJyHvOsz3_65mQ2H2uYSCEc-3V75yJcrO562/pub?output=csv";
 
 let PRODUCTS = { capilares: [], perfumes: [], mascarillas: [], ropa: [] };
+let currentFilter = "all";
+let currentSearch = "";
 
 const SUBCATEGORY_LABELS = {
   shampoo: "Shampoo",
@@ -68,9 +70,32 @@ function parseCSV(text) {
   return rows.filter((r) => r.length && r.some((v) => v.trim() !== ""));
 }
 
+/* ---------- estado de carga (loading / error) ---------- */
+function showLoading() {
+  const grid = document.getElementById("productGrid");
+  if (!grid) return;
+  grid.innerHTML = `
+    <div class="state-msg">
+      <span class="state-spinner"></span>
+      <p>Cargando productos...</p>
+    </div>`;
+}
+
+function showError() {
+  const grid = document.getElementById("productGrid");
+  if (!grid) return;
+  grid.innerHTML = `
+    <div class="state-msg">
+      <p>No pudimos cargar el catálogo. Revisa tu conexión e intenta de nuevo.</p>
+      <button class="btn btn-outline" onclick="location.reload()">Reintentar</button>
+    </div>`;
+}
+
 async function loadProducts() {
+  showLoading();
   try {
     const res = await fetch(SHEET_CSV_URL);
+    if (!res.ok) throw new Error("Respuesta no válida del servidor");
     const csvText = await res.text();
     const rows = parseCSV(csvText);
     const headers = rows[0].map((h) => h.trim().toLowerCase());
@@ -110,21 +135,39 @@ async function loadProducts() {
     PRODUCTS = grouped;
   } catch (e) {
     console.error("No se pudo cargar el catálogo desde Google Sheets:", e);
+    PRODUCTS = null; // marca que hubo error
   }
 }
 
 /* promesa global que otros scripts (cart.js) pueden esperar */
 window.PRODUCTS_READY = loadProducts();
 
-function renderCategory(category, filter = "all") {
+function renderCategory(category) {
   const grid = document.getElementById("productGrid");
   if (!grid) return;
+
+  if (PRODUCTS === null) {
+    showError();
+    return;
+  }
+
   let items = PRODUCTS[category] || [];
-  if (filter !== "all") items = items.filter((p) => p.subcategory === filter);
+  if (currentFilter !== "all")
+    items = items.filter((p) => p.subcategory === currentFilter);
+  if (currentSearch.trim() !== "") {
+    const term = currentSearch.trim().toLowerCase();
+    items = items.filter(
+      (p) =>
+        (p.name || "").toLowerCase().includes(term) ||
+        (p.desc || "").toLowerCase().includes(term),
+    );
+  }
 
   if (items.length === 0) {
     grid.innerHTML =
-      '<p class="empty-msg">Pronto agregaremos productos aquí. Vuelve pronto ✨</p>';
+      currentSearch.trim() !== ""
+        ? '<p class="empty-msg">No encontramos productos que coincidan con tu búsqueda.</p>'
+        : '<p class="empty-msg">Pronto agregaremos productos aquí. Vuelve pronto ✨</p>';
     return;
   }
 
@@ -172,7 +215,7 @@ function renderCategory(category, filter = "all") {
 
 function renderSubcategoryFilters(category) {
   const wrap = document.getElementById("subcatFilters");
-  if (!wrap) return;
+  if (!wrap || PRODUCTS === null) return;
   const items = PRODUCTS[category] || [];
   const present = [...new Set(items.map((p) => p.subcategory).filter(Boolean))];
   if (present.length === 0) {
@@ -191,16 +234,27 @@ function renderSubcategoryFilters(category) {
         .querySelectorAll(".filter-btn")
         .forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
-      renderCategory(category, btn.dataset.filter);
+      currentFilter = btn.dataset.filter;
+      renderCategory(category);
     });
   });
 }
 
+function setupSearch(category) {
+  const input = document.getElementById("searchInput");
+  if (!input) return;
+  input.addEventListener("input", () => {
+    currentSearch = input.value;
+    renderCategory(category);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
-  if (window.PRODUCTS_READY) await window.PRODUCTS_READY;
+  await window.PRODUCTS_READY;
   const category = document.body.dataset.category;
   if (category) {
     renderSubcategoryFilters(category);
+    setupSearch(category);
     renderCategory(category);
   }
 });
