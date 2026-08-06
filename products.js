@@ -13,6 +13,11 @@ const SUBCATEGORY_LABELS = {
   acondicionador: "Acondicionador",
   mascarilla: "Mascarillas",
   termoprotector: "Termoprotector",
+  "energizante-capilar": "Energizante",
+  "tonico-capilar": "Tónico Capilar",
+  tratamiento: "Tratamientos",
+  "perfume-capilar": "Perfume Capilar",
+  bronceador: "Bronceador",
 };
 
 function escapeHtml(text) {
