@@ -11,13 +11,9 @@ let PRODUCTS = { capilares: [], perfumes: [], mascarillas: [], ropa: [] };
 const SUBCATEGORY_LABELS = {
   shampoo: "Shampoo",
   acondicionador: "Acondicionador",
+  "termoprotector-tonico-capilar": "Termoprotector / Tónico",
   mascarilla: "Mascarillas",
-  termoprotector: "Termoprotector",
-  "energizante-capilar": "Energizante",
-  "tonico-capilar": "Tónico Capilar",
-  tratamiento: "Tratamientos",
-  "perfume-capilar": "Perfume Capilar",
-  bronceador: "Bronceador",
+  perfumes: "Perfumes",
 };
 
 function escapeHtml(text) {
