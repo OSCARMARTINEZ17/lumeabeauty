@@ -102,8 +102,14 @@ async function loadProducts() {
               .filter(Boolean)
           : null,
       };
-      if (!grouped[obj.category]) grouped[obj.category] = [];
-      grouped[obj.category].push(product);
+      const categories = obj.category
+        .split(",")
+        .map((c) => c.trim())
+        .filter(Boolean);
+      categories.forEach((cat) => {
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(product);
+      });
     });
     PRODUCTS = grouped;
   } catch (e) {
